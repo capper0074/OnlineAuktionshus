@@ -1,0 +1,57 @@
+﻿@page "/test"
+
+<PageTitle>Industry</PageTitle>
+
+<h2>Industry</h2>
+<h6>This is your industry</h6>
+
+<div>
+    <button class="btn btn-primary" @onclick="GetWood">Get Wood</button>
+    <button class="btn btn-primary" @onclick="BuyWorker">Buy Worker</button>
+</div>
+
+@code {
+    public static class Production
+    {
+        public static int Wood { get; set; }
+        public static int Stone { get; set; }
+        public static int Wheat { get; set; }
+        public static int Wine { get; set; }
+        public static int Textile { get; set; }
+    }
+
+    private void BuyWorker()
+    {
+        if (Production.Wood >= 5)
+        {
+            Production.Wood -= 5;
+
+        }
+    }
+
+    private Timer timer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        timer = new Timer(UpdateWood, null, 0, 5000); // 5000ms = 5 seconds
+    }
+
+    private void GetWood()
+    {
+        Production.Wood++;
+    }
+
+    // Callback method for the timer
+    private void UpdateWood(object state)
+    {
+        Production.Wood++;
+        // Trigger a UI update
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void Dispose()
+    {
+        // Clean up the timer when the component is disposed
+        timer.Dispose();
+    }
+}
