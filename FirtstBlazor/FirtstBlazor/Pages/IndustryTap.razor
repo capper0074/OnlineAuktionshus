@@ -6,8 +6,24 @@
 <h6>This is your industry</h6>
 
 <div>
-    <button class="btn btn-primary" @onclick="GetWood">Get Wood</button>
-    <button class="btn btn-primary" @onclick="BuyWorker">Buy Worker</button>
+    Wood: @Production.Wood --
+    Stone: @Production.Stone -- 
+    Wheat: @Production.Wheat -- 
+    Wine: @Production.Wine -- 
+    Textile: @Production.Textile
+
+</div>
+<br /><br />
+
+<div>
+    <button class="btn btn-primary" @onclick="BuyWoodCutter">Buy WoodCutter</button>
+    <button class="btn btn-primary" @onclick="BuyStoneMine">Buy StoneMine</button>
+</div>
+
+<br /><br />
+<div>
+    WoodCutter: @Building.WoodCutter --
+    StoneMine: @Building.StoneMine 
 </div>
 
 @code {
@@ -20,32 +36,86 @@
         public static int Textile { get; set; }
     }
 
-    private void BuyWorker()
+    public static class Building
     {
-        if (Production.Wood >= 5)
-        {
-            Production.Wood -= 5;
+        public static int WoodCutter { get; set; }
+        public static int StoneMine { get; set; }
+        public static int WheatFarm { get; set; }
+        public static int WineFarm { get; set; }
+        public static int TextileShop { get; set; }
+    }
 
+    public static class BuildingPrice
+    {
+        public static int woodCutterPrice = 5;
+        public static int stoneMinePrice = 25;
+        
+    }
+    private Timer timer;
+
+    private int woodTime = 4000;
+    private int stoneTime = 5000;
+
+    protected override async Task OnInitializedAsync() //Det her pis virker ikke helt, ved ikke hvorfor
+    {
+        timer = new Timer(UpdateWood, null, 0, woodTime); // 4000ms = 4  seconds
+
+        if(Building.StoneMine >= 1)
+        {
+            timer = new Timer(UpdateStone, null, 0, stoneTime);
         }
     }
 
-    private Timer timer;
-
-    protected override async Task OnInitializedAsync()
+    private void BuyWoodCutter()
     {
-        timer = new Timer(UpdateWood, null, 0, 5000); // 5000ms = 5 seconds
+
+        if(Production.Wood >= BuildingPrice.woodCutterPrice)
+        {
+            Building.WoodCutter += 1;
+            Production.Wood -= BuildingPrice.woodCutterPrice;
+            BuildingPrice.woodCutterPrice += 2;
+            woodTime -= 100;
+
+        }
+    }
+    private void BuyStoneMine()
+    {
+
+        if (Production.Stone >= BuildingPrice.stoneMinePrice)
+        {
+            Building.StoneMine += 1;
+            Production.Stone -= BuildingPrice.stoneMinePrice;
+            BuildingPrice.stoneMinePrice += 4;
+            stoneTime -= 100;
+        }
     }
 
-    private void GetWood()
-    {
-        Production.Wood++;
-    }
-
-    // Callback method for the timer
     private void UpdateWood(object state)
     {
-        Production.Wood++;
-        // Trigger a UI update
+        if(woodTime >= 1000)
+        {
+            Production.Wood++;
+        }
+        else
+        {
+            Production.Wood += 2;
+        }
+
+
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    private void UpdateStone(object state)
+    {
+        if(stoneTime >= 1000)
+        {
+            Production.Stone++;
+        }
+        else
+        {
+            Production.Stone += 2;
+        }
+
         InvokeAsync(() => StateHasChanged());
     }
 
